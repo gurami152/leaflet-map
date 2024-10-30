@@ -7,6 +7,7 @@
     <title>Leaflet GeoJSON Map</title>
     <!-- Include Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -20,14 +21,42 @@
 
     function getStyle(region) {
         const styles = {
-            'north': { color: "blue", fillOpacity: 0.4 },
-            'south': { color: "green", fillOpacity: 0.4 }
+            'north': {
+                color: "blue",
+                fillOpacity: 0.4
+            },
+            'south': {
+                fillColor: "orange",
+                color: "orange",
+                fillOpacity: 0.4,
+                weight: 3,
+                dashArray: '3',
+            }
         };
-        return styles[region] || { color: "black", fillOpacity: 0.4 };
+        return styles[region] || {color: "black", fillOpacity: 0.4};
+    }
+
+    function getColor(d) {
+        return d > 100 ? '#251e48' :
+            d > 90 ? '#3e337c' :
+                d > 80 ? '#4b3e99' :
+                    d > 70 ? '#5842c0' :
+                        d > 60 ? '#6751da' :
+                            d > 50 ? '#786de7' :
+                                d > 40 ? '#8a89f0' :
+                                    d > 30 ? '#abb0f6' :
+                                        d > 20 ? '#cbcffa' :
+                                            d > 10 ? '#e2e5fd' :
+                                                '#eff1fe';
     }
 
     function highlightGroupStyle() {
-        return { color: "orange", fillOpacity: 0.7 }; // Стиль при наведении
+        return {
+            fillColor: "orange",
+            weight: 5,
+            dashArray: '',
+            color: '#666'
+        }; // Стиль при наведении
     }
 
     // Функция для сброса стиля всей группы
@@ -39,6 +68,7 @@
     function setGroupStyle(group, style) {
         group.eachLayer(layer => layer.setStyle(style));
     }
+
 
     // Initialize the map
     const map = L.map('map').setView([48.3794, 31.1656], 6);
@@ -1700,6 +1730,8 @@
     };
 
     const northRegionsMap = {};
+    const westRegionsMap = {};
+    const eastRegionsMap = {};
     const southRegionsMap = {};
 
     geojsonFeature.features.forEach((feature) => {
@@ -1707,7 +1739,7 @@
 
 
         // Check if the region group already exists; if not, create it
-        if (regionName == 'north' ) {
+        if (regionName == 'north') {
             if (!northRegionsMap[regionName]) {
                 console.log(regionName);
                 northRegionsMap[regionName] = L.featureGroup().addTo(map);
@@ -1729,20 +1761,20 @@
             // Add the feature to the corresponding region layer
             const layer = L.geoJson(feature, {
                 style: getStyle(regionName),  // Установка стиля для каждого региона
-                    onEachFeature: function (feature, layer) {
-                        layer.on({
-                            mouseover: () => setGroupStyle(southRegionsMap[regionName], highlightGroupStyle()),
-                            mouseout: () => setGroupStyle(southRegionsMap[regionName], resetGroupStyle(regionName))
-                        });
-                        // Опционально, событие клика
-                        layer.on('click', () => {
-                            alert(`Вы нажали на область ${feature.properties.region}`);
-                        });
-                        if (feature.properties && feature.properties.name) {
-                            layer.bindPopup(feature.properties.name);
-                        }
+                onEachFeature: function (feature, layer) {
+                    layer.on({
+                        mouseover: () => setGroupStyle(southRegionsMap[regionName], highlightGroupStyle()),
+                        mouseout: () => setGroupStyle(southRegionsMap[regionName], resetGroupStyle(regionName))
+                    });
+                    // Опционально, событие клика
+                    layer.on('click', () => {
+                        alert(`Вы нажали на область ${feature.properties.region}`);
+                    });
+                    if (feature.properties && feature.properties.name) {
+                        layer.bindPopup(feature.properties.name);
                     }
-                });
+                }
+            });
             southRegionsMap[regionName].addLayer(layer);
         }
 
@@ -1758,7 +1790,43 @@
     //     }
     // }).addTo(map);
 
-    L.control.layers(null, regions).addTo(map);
+    var info = L.control();
+
+    info.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+        this.update();
+        return this._div;
+    };
+
+    // method that we will use to update the control based on feature properties passed
+    info.update = function (props) {
+        this._div.innerHTML = '<h4>US Population Density</h4>' + (props ?
+            '<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
+            : 'Hover over a state');
+    };
+
+
+    var legend = L.control({position: 'bottomright'});
+
+    legend.onAdd = function (map) {
+
+        var div = L.DomUtil.create('div', 'info legend'),
+            grades = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            labels = [];
+
+        // loop through our density intervals and generate a label with a colored square for each interval
+        for (var i = 0; i < grades.length; i++) {
+            div.innerHTML +=
+                '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+                grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+        }
+
+        return div;
+    };
+
+    legend.addTo(map);
+
+    info.addTo(map);
 
     map.setMaxBounds(bounds);
     map.on('drag', function () {

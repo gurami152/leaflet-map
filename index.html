@@ -69,10 +69,10 @@
 <script>
     values = {
         1: {
-            north: 1,
-            south: 2,
-            east: 9,
-            west: 3,
+            north: 62,
+            south: 65,
+            east: 66,
+            west: 65,
         }
     }
 
@@ -82,19 +82,31 @@
         const styles = {
             'north': {
                 fillColor: colorMap['north'] ?? 'blue',
-                weight: 0
+                fillOpacity: 1,
+                weight: 3,
+                color: "white",
+                dashArray: '3',
             },
             'south': {
                 fillColor: colorMap['south'] ?? 'orange',
-                weight: 0
+                fillOpacity: 1,
+                weight: 3,
+                color: "white",
+                dashArray: '3',
             },
             'west': {
                 fillColor: colorMap['west'] ?? "purple",
-                weight: 0
+                fillOpacity: 1,
+                weight: 3,
+                color: "white",
+                dashArray: '3',
             },
             'east': {
                 fillColor: colorMap['east'] ?? "gray",
-                weight: 0
+                fillOpacity: 1,
+                weight: 3,
+                color: "white",
+                dashArray: '3',
             }
         };
         return styles[region] || {color: "black", fillOpacity: 0.4};
@@ -132,40 +144,44 @@
     }
 
     function getColor(d) {
-        return d > 100 ? '#251e48' :
-            d > 90 ? '#3e337c' :
-                d > 80 ? '#4b3e99' :
-                    d > 70 ? '#5842c0' :
-                        d > 60 ? '#6751da' :
-                            d > 50 ? '#786de7' :
-                                d > 40 ? '#8a89f0' :
-                                    d > 30 ? '#abb0f6' :
-                                        d > 20 ? '#cbcffa' :
-                                            d > 10 ? '#e2e5fd' :
-                                                '#eff1fe';
+        return d >= 100 ? '#251e48' :      // Найтемніший
+            d >= 90  ? '#3e337c' :
+                d >= 80  ? '#4b3e99' :
+                    d >= 70  ? '#5842c0' :
+                        d >= 60  ? '#6751da' :
+                            d >= 50  ? '#786de7' :
+                                d >= 40  ? '#8a89f0' :
+                                    d >= 30  ? '#abb0f6' :
+                                        d >= 20  ? '#cbcffa' :
+                                            d >= 10  ? '#e2e5fd' :      // Найсвітліший для 10
+                                                '#eff1fe';       // Значення нижче 10
     }
 
     function highlightGroupSouth() {
         return {
-            weight: 3
+            weight: 5,
+            color: "gray"
         }; // Стиль при наведении
     }
 
     function highlightGroupWest() {
         return {
-            weight: 3
+            weight: 3,
+            color: "gray"
         }; // Стиль при наведении
     }
 
     function highlightGroupNorth() {
         return {
-            weight: 3
+            weight: 3,
+            color: "gray"
         }; // Стиль при наведении
     }
 
     function highlightGroupEast() {
         return {
-            weight: 3
+            weight: 3,
+            color: "gray"
         }; // Стиль при наведении
     }
 

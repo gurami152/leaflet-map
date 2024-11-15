@@ -407,14 +407,11 @@
         const select = document.getElementById("regionSelect");
         const selectedRegion = select.value;
 
-        // Отримуємо масив значень для обраного регіону
         const allValues = Object.values(values[selectedRegion]);
 
-        // Знаходимо мінімальне та максимальне значення
         const minValue = Math.min(...allValues);
         const maxValue = Math.max(...allValues);
 
-        // Створюємо мапу для кольорів
         const colorMap = {};
         Object.entries(values[selectedRegion]).forEach(([key, value]) => {
             const color = getColorForRange(value, minValue, maxValue);
@@ -423,39 +420,24 @@
             updateLegend(minValue, maxValue);
         });
 
-        // Приклад виведення colorMap (можна налаштувати для відображення на сторінці)
         console.log(colorMap);
 
         return colorMap;
     }
 
     function getColorForRange(value, min, max) {
-        const normalizedValue = ((value - min) / (max - min)) * 100; // нормалізація в межах від 0 до 100
+        const normalizedValue = ((value - min) / (max - min)) * 100;
         console.log(normalizedValue);
         return getColor(normalizedValue);
     }
 
     function getColor(normalizedValue) {
-        const hue = 270; // Оттенок для фиолетового цвета
-        const saturation = normalizedValue; // Насыщенность растёт от 0% до 100% по мере увеличения normalizedValue
-        const lightness = 100 - (normalizedValue * 0.5); // Светлость уменьшается от 100% до 50%
+        const hue = 270;
+        const saturation = 10 + normalizedValue * 0.8;
+        const lightness = 90 - normalizedValue * 0.3;
 
         return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
     }
-
-    // function getColor(d) {
-    //     return d >= 100 ? '#251e48' :      // Найтемніший
-    //         d >= 90  ? '#3e337c' :
-    //             d >= 80  ? '#4b3e99' :
-    //                 d >= 70  ? '#5842c0' :
-    //                     d >= 60  ? '#6751da' :
-    //                         d >= 50  ? '#786de7' :
-    //                             d >= 40  ? '#8a89f0' :
-    //                                 d >= 30  ? '#abb0f6' :
-    //                                     d >= 20  ? '#cbcffa' :
-    //                                         d >= 10  ? '#e2e5fd' :      // Найсвітліший для 10
-    //                                             '#eff1fe';       // Значення нижче 10
-    // }
 
     function highlightGroupSouth() {
         const select = document.getElementById("regionSelect");
@@ -464,7 +446,7 @@
         return {
             weight: 5,
             color: "gray"
-        }; // Стиль при наведении
+        };
     }
 
     function highlightGroupWest() {
@@ -474,7 +456,7 @@
         return {
             weight: 3,
             color: "gray"
-        }; // Стиль при наведении
+        };
     }
 
     function highlightGroupNorth() {
@@ -484,7 +466,7 @@
         return {
             weight: 3,
             color: "gray"
-        }; // Стиль при наведении
+        };
     }
 
     function highlightGroupEast() {
@@ -494,56 +476,30 @@
         return {
             weight: 3,
             color: "gray"
-        }; // Стиль при наведении
+        };
     }
 
-    // Функция для сброса стиля всей группы
     function resetGroupStyle(region) {
         info.update(null);
-        return getStyle(region); // Возвращаем исходный стиль
+        return getStyle(region);
     }
 
-    // Функция для подсветки и сброса стиля всей группы
     function setGroupStyle(group, style) {
         group.eachLayer(layer => layer.setStyle(style));
     }
 
-
-    // function updateMapStyles() {
-    //     const colorMap = updateColorScheme();
-    //
-    //     // Обновляем стиль для каждого слоя на основе colorMap
-    //     geojsonLayer.eachLayer(layer => {
-    //         const region = layer.feature.properties.region;
-    //         const newStyle = {
-    //             fillColor: colorMap[region],
-    //             fillOpacity: 1,
-    //             weight: 3,
-    //             color: "white",
-    //             dashArray: '3'
-    //         };
-    //         layer.setStyle(newStyle);
-    //     });
-    // }
-    //
-    // // Обновляем карту при выборе в дропдауне
-    // document.getElementById("regionSelect").addEventListener("change", updateMapStyles);
-
-
-
-    // Add a tile layer
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }).addTo(map);
 
-    const bounds = L.latLngBounds([ // Define the south-west and north-east corners of Ukraine
-        [44.184598, 22.137158],  // South-West corner of Ukraine
-        [52.379581, 40.227580]   // North-East corner of Ukraine
+    const bounds = L.latLngBounds([
+        [44.184598, 22.137158],
+        [52.379581, 40.227580]
     ]);
 
 
-    // GeoJSON data
+
     const geojsonFeature = {
         "bbox": [29.592788696289062, 48.45330810546875, 32.855438232421875, 50.251434326171875],
         "type": "FeatureCollection",
@@ -752,17 +708,14 @@
     geojsonFeature.features.forEach((feature) => {
         const regionName = feature.properties.region;
 
-
-        // Check if the region group already exists; if not, create it
         if (regionName == 'north') {
             if (!northRegionsMap[regionName]) {
                 console.log(regionName);
                 northRegionsMap[regionName] = L.featureGroup().addTo(map);
             }
 
-            // Add the feature to the corresponding region layer
             const layer = L.geoJson(feature, {
-                style: getStyle(regionName),  // Установка стиля для каждого региона
+                style: getStyle(regionName),
                 onEachFeature: function (feature, layer) {
                     layer.on({
                         mouseover: () => setGroupStyle(northRegionsMap[regionName], highlightGroupNorth()),
@@ -782,9 +735,8 @@
                 westRegionsMap[regionName] = L.featureGroup().addTo(map);
             }
 
-            // Add the feature to the corresponding region layer
             const layer = L.geoJson(feature, {
-                style: getStyle(regionName),  // Установка стиля для каждого региона
+                style: getStyle(regionName),
                 onEachFeature: function (feature, layer) {
                     layer.on({
                         mouseover: () => setGroupStyle(westRegionsMap[regionName], highlightGroupWest()),
@@ -804,9 +756,8 @@
                 eastRegionsMap[regionName] = L.featureGroup().addTo(map);
             }
 
-            // Add the feature to the corresponding region layer
             const layer = L.geoJson(feature, {
-                style: getStyle(regionName),  // Установка стиля для каждого региона
+                style: getStyle(regionName),
                 onEachFeature: function (feature, layer) {
                     layer.on({
                         mouseover: () => setGroupStyle(eastRegionsMap[regionName], highlightGroupEast()),
@@ -826,9 +777,8 @@
                 southRegionsMap[regionName] = L.featureGroup().addTo(map);
             }
 
-            // Add the feature to the corresponding region layer
             const layer = L.geoJson(feature, {
-                style: getStyle(regionName),  // Установка стиля для каждого региона
+                style: getStyle(regionName),
                 onEachFeature: function (feature, layer) {
                     layer.on({
                         mouseover: () => setGroupStyle(southRegionsMap[regionName], highlightGroupSouth()),
@@ -846,12 +796,12 @@
     });
 
     info.onAdd = function (map) {
-        this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+        this._div = L.DomUtil.create('div', 'info');
         this.update();
         return this._div;
     };
 
-    // method that we will use to update the control based on feature properties passed
+
     info.update = function (props, region) {
         var sel = document.getElementById("regionSelect");
         var text= sel.options[sel.selectedIndex].text;
@@ -860,29 +810,8 @@
             : 'Наведіть курсором на регіон');
     };
 
-
-    // var legend = L.control({position: 'bottomright'});
-    //
-    // legend.onAdd = function (map) {
-    //
-    //     var div = L.DomUtil.create('div', 'info legend'),
-    //         grades = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-    //         labels = [];
-    //
-    //     // loop through our density intervals and generate a label with a colored square for each interval
-    //     for (var i = 0; i < grades.length; i++) {
-    //         div.innerHTML +=
-    //             '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
-    //             grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
-    //     }
-    //
-    //     return div;
-    // };
-    //
-    // legend.addTo(map);
-
     function updateLegend(min, max) {
-        var step = (max - min) / 5;  // создаём 5 шагов
+        var step = (max - min) / 5;
         var grades = [];
         for (var i = 0; i <= 5; i++) {
             grades.push(min + step * i);
@@ -911,7 +840,7 @@
 
     legend.onAdd = function (map) {
         var div = L.DomUtil.create('div', 'info legend'),
-            grades = [0, 20, 40, 60, 80, 100],  // разные точки для демонстрации градации
+            grades = [0, 20, 40, 60, 80, 100],
             labels = [],
             from, to;
 

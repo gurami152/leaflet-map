@@ -768,10 +768,6 @@
                         mouseover: () => setGroupStyle(northRegionsMap[regionName], highlightGroupNorth()),
                         mouseout: () => setGroupStyle(northRegionsMap[regionName], resetGroupStyle(regionName))
                     });
-                    // Опционально, событие клика
-                    layer.on('click', () => {
-                        alert(`Вы нажали на область ${feature.properties.region}`);
-                    });
                     if (feature.properties && feature.properties.name) {
                         layer.bindPopup(feature.properties.name);
                     }

@@ -790,10 +790,6 @@
                         mouseover: () => setGroupStyle(westRegionsMap[regionName], highlightGroupWest()),
                         mouseout: () => setGroupStyle(westRegionsMap[regionName], resetGroupStyle(regionName))
                     });
-                    // Опционально, событие клика
-                    layer.on('click', () => {
-                        alert(`Вы нажали на область ${feature.properties.region}`);
-                    });
                     if (feature.properties && feature.properties.name) {
                         layer.bindPopup(feature.properties.name);
                     }
@@ -816,10 +812,6 @@
                         mouseover: () => setGroupStyle(eastRegionsMap[regionName], highlightGroupEast()),
                         mouseout: () => setGroupStyle(eastRegionsMap[regionName], resetGroupStyle(regionName))
                     });
-                    // Опционально, событие клика
-                    layer.on('click', () => {
-                        alert(`Вы нажали на область ${feature.properties.region}`);
-                    });
                     if (feature.properties && feature.properties.name) {
                         layer.bindPopup(feature.properties.name);
                     }
@@ -841,10 +833,6 @@
                     layer.on({
                         mouseover: () => setGroupStyle(southRegionsMap[regionName], highlightGroupSouth()),
                         mouseout: () => setGroupStyle(southRegionsMap[regionName], resetGroupStyle(regionName))
-                    });
-                    // Опционально, событие клика
-                    layer.on('click', () => {
-                        alert(`Вы нажали на область ${feature.properties.region}`);
                     });
                     if (feature.properties && feature.properties.name) {
                         layer.bindPopup(feature.properties.name);
